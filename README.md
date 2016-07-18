@@ -70,9 +70,10 @@ patch('Faces', face, 'Vertices', reshape(P(2524:end), 3, [])', 'FaceColor', 'b',
 axis equal;
 ```
 
-<img src="figs/visualize_shape3_matlab.png" style="width: 250px;"/>
+<img src="figs/visualize_shape3_matlab.png" style="width: 100px;"/>
 
 ## Using R
 
 ```R
+
 ```
