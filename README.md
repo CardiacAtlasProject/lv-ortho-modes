@@ -73,4 +73,20 @@ patch('Faces', face, 'Vertices', reshape(P(2524:end), 3, [])', 'FaceColor', 'b',
 axis equal;
 ```
 
-# Generate orthogonal modes
+# Generating modes
+
+Run:
+
+```matlab
+>> GenerateOrthogonalModes;
+```
+
+The outputs are:
+* `ortho-modes-nlatent_DD.csv`, where DD is the number of latent variables you specified. It contains six columns of modes without header, where columns are the same as `clinical_index.csv` columns.
+* 'ortho-pcscores-nlatent_DD.csv', where DD is the number of latent variables you specified. It contains the principal scores with the same number of columns as the modes.
+
+# Visualizing a clinical mode
+
+
+
+# Interactive visualization
