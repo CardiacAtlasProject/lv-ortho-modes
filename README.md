@@ -61,8 +61,8 @@ Note that the vector contains 2 surfaces. Hence index 1:2523 are for endocardium
 ptsED = importdata('surface_points_ED.csv');
 face = importdata('surface_face.csv');
 
-% Visualize LV shape from subject #3
-P = ptsED(3,:);
+% Visualize LV shape from subject #5
+P = ptsED(5,:);
 figure;
 patch('Faces', face, 'Vertices', reshape(P(1:2523), 3, [])', 'FaceColor', 'r', 'FaceAlpha', 0.2);
 hold on;
@@ -72,6 +72,21 @@ axis equal;
 
 ## Using R
 
-```R
+```r
+# Need RGL library
+require('rgl')
 
+# Load points and faces
+ptsED = as.matrix(read.csv('surface_points_ED.csv', header=FALSE))
+face = as.matrix(read.csv('surface_face.csv', header=FALSE))
+
+# visualize #5
+P = matrix(ptsED[5,], ncol=3, byrow = TRUE)
+
+# plot - remember to transpose
+surf.ED = tmesh3d(t(P[1:841,]), t(face), homogeneous = FALSE)
+surf.ES = tmesh3d(t(P[842:1682,]), t(face), homogeneous = FALSE)
+open3d()
+wire3d(surf.ED, color='red')
+wire3d(surf.ES, color='blue')
 ```
