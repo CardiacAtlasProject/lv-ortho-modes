@@ -13,12 +13,12 @@ This directory contains necessary data files, Matlab and R script files used to 
 * Header: TRUE
 * Delimiter: ','
 
-This file contains 5 clinical indices that we used in the paper:
-* EDVI = End-Diastolic Volume Index, which is End-Diastolic Volume (in ml) divided by Body Surface Area.
+This file contains 5 clinical indices that we used in the paper are ordered as follows:
+1. EDVI = End-Diastolic Volume Index, which is End-Diastolic Volume (in ml) divided by Body Surface Area.
 * Sphericity = EDV divided by the volume of a sphere with a diameter corresponding to the major axis at ED in LV long-axis view.
+* EF = Ejection Fraction, which is (EDV - ESV) / EDV, where ESV = End-Systolic Volume.
 * RWT = Relative Wall Thickness = twice the posterior wall thickness divided by the ED diameter.
 * Conicity = the ratio of the apical diameter (defined as the diameter of the endocardium one third above the apex) over the basal diameter at ED.
-* EF = Ejection Fraction, which is (EDV - ESV) / EDV, where ESV = End-Systolic Volume.
 * LS = Longitudinal Shortening, which is the difference of the distance of the central basal point to the apical point at ED and ES over the distance at ED.
 
 The extra column shows labels for each row, either asymptomatic volunteers (ASYMP, n=1991) or patients with myocardial infarction (MI, n=300).
@@ -53,6 +53,14 @@ Defines the surface sample points of the LV model at ES. See `surface_points_ED.
 
 Contains the triangular patches for an LV surface. There are 1595 patches that contains indices of vertices. See LV surface visualization section below.
 
+## `mean_shape.csv`
+
+* Size: 10092 rows, 1 columns
+* Header: FALSE
+* Delimiter: ','
+
+Defines the mean shape of LV shapes from both ED (first half) and ES (second half). This data is useful to generate a clinical mode (see Visualizing a clinical mode section).
+
 # Visualizing an LV model
 
 You need a surface point vector (size = 5046 elements) and surface patches (defined by `surface_face.csv` file).
@@ -83,10 +91,37 @@ Run:
 
 The outputs are:
 * `ortho-modes-nlatent_DD.csv`, where DD is the number of latent variables you specified. It contains six columns of modes without header, where columns are the same as `clinical_index.csv` columns.
-* 'ortho-pcscores-nlatent_DD.csv', where DD is the number of latent variables you specified. It contains the principal scores with the same number of columns as the modes.
+* `ortho-pcscores-nlatent_DD.csv`, where DD is the number of latent variables you specified. It contains the principal scores with the same number of columns as the modes.
 
 # Visualizing a clinical mode
 
+Use `GenerateShapeFromMode.m` file.
 
+For example, we want to generate clinical mode of relative wall thickness (RWT) at 10th percentile from the model distribution:
+
+```matlab
+% read the output orthogonal mode files
+modes = importdata('modes/ortho-modes-nlatent_1.csv');
+
+% generate a shape based on clinical mode #4 (RWT) at 10th percentile
+S = GenerateShapeFromMode( modes(:,4), 10 );
+
+% read patches for visualization
+face = importdata('data/surface_face.csv');
+
+% visualize the ED
+figure('Name', 'RWT mode at ED pct=10');
+patch('Faces',face, 'Vertices', reshape(S(1,1:2523),3,[])', 'FaceColor', 'r', 'FaceAlpha', 0.2);
+hold on;
+patch('Faces',face, 'Vertices', reshape(S(1,2524:end),3,[])', 'FaceColor', 'b', 'FaceAlpha', 0.2);
+axis equal;
+
+% visualize the ES
+figure('Name', 'RWT mode at ES pct=10');
+patch('Faces',face, 'Vertices', reshape(S(2,1:2523),3,[])', 'FaceColor', 'r', 'FaceAlpha', 0.2);
+hold on;
+patch('Faces',face, 'Vertices', reshape(S(2,2524:end),3,[])', 'FaceColor', 'b', 'FaceAlpha', 0.2);
+axis equal;
+```
 
 # Interactive visualization

@@ -6,7 +6,8 @@ function GenerateOrthogonalModes
 %
 % This function will run interactively to ask users for specific inputs.
 %
-% Xingyu Zhang, Pau Medrano-Gracia, Alistair Young & Avan Suinesipautra
+% Author: Avan Suinesiaputra,
+% Modified from: Xingyu Zhang, Pau Medrano-Gracia & Alistair Young
 % University of Auckland - 2016
 
 % get clinical_index values, ask user for input if necessary
