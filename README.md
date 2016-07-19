@@ -1,5 +1,10 @@
 This directory contains necessary data files, Matlab and R script files used to calculate and visualize the clinical orthogonal modes from Left Ventricular (LV) models.
 
+# Requirements
+
+1. Matlab (http://www.mathworks.com)
+1. Statistics and Machine Learning Matlab Toolbox
+
 # Data
 
 ## `clinical_index.csv`
@@ -54,8 +59,6 @@ You need a surface point vector (size = 5046 elements) and surface patches (defi
 
 Note that the vector contains 2 surfaces. Hence index 1:2523 are for endocardium and index 2524:5046 are for epicardium. The number of points are then 2523/3=841 points per surface.
 
-## Using Matlab
-
 ```matlab
 % Load points and faces
 ptsED = importdata('surface_points_ED.csv');
@@ -70,23 +73,4 @@ patch('Faces', face, 'Vertices', reshape(P(2524:end), 3, [])', 'FaceColor', 'b',
 axis equal;
 ```
 
-## Using R
-
-```r
-# Need RGL library
-require('rgl')
-
-# Load points and faces
-ptsED = as.matrix(read.csv('surface_points_ED.csv', header=FALSE))
-face = as.matrix(read.csv('surface_face.csv', header=FALSE))
-
-# visualize #5
-P = matrix(ptsED[5,], ncol=3, byrow = TRUE)
-
-# plot - remember to transpose
-surf.ED = tmesh3d(t(P[1:841,]), t(face), homogeneous = FALSE)
-surf.ES = tmesh3d(t(P[842:1682,]), t(face), homogeneous = FALSE)
-open3d()
-wire3d(surf.ED, color='red')
-wire3d(surf.ES, color='blue')
-```
+# Generate orthogonal modes
