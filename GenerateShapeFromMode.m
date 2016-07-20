@@ -36,8 +36,8 @@ opt.mean_shape = 'data/mean_shape.csv';
 
 % get options
 for i=1:2:length(varargin)
-    if( isfield(opt,strcmpi(varargin{i})) )
-        opt.(strcmpi(varargin{i})) = varargin{i+1};
+    if( isfield(opt,lower(varargin{i})) )
+        opt.(lower(varargin{i})) = varargin{i+1};
     else
         error('Unknown option.');
     end
