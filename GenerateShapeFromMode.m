@@ -21,7 +21,7 @@ function S = GenerateShapeFromMode(M, pct, varargin)
 %   coordinate values.
 %
 % Optional arguments:
-%   - 'mean_shape', filename.
+%   - 'mean_shape', filename or the mean shape vector.
 %     Default is 'data/mean_shape.csv'. This defines the mean shape vector,
 %     which is 10092x1 size.
 %
@@ -44,8 +44,12 @@ for i=1:2:length(varargin)
 end
 
 % read mean_shape
-if( ~exist(opt.mean_shape,'file') ), error('Mean shape %s does not exist', opt.mean_shape); end
-MS = importdata(opt.mean_shape);
+if( ischar(opt.mean_shape) )
+    if( ~exist(opt.mean_shape,'file') ), error('Mean shape %s does not exist', opt.mean_shape); end
+    MS = importdata(opt.mean_shape);
+else
+    MS = opt.mean_shape;
+end
 if( numel(MS)~=10092 ), error('Invalid mean shape.'); end
 
 % generate
