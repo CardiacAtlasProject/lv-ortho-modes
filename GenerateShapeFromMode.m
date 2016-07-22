@@ -1,11 +1,12 @@
-function S = GenerateShapeFromMode(M, pct, varargin)
+function S = GenerateShapeFromMode(M, pcs, pct, varargin)
 % GENERATE SHAPE FROM MODE
 % Re-generate an LV shape back from an orthogonal mode at a specified
 % percentile from the model distribution.
 %
-%   S = GenerateShapeFromMode( M, pct, ... );
+%   S = GenerateShapeFromMode( M, pcs, pct, ... );
 %
 % Inputs: - M is a vector of orthogonal mode (10092x1).
+%         - pcs is a vector of principal scores (2291x1).
 %         - pct is the percentile number [0,100]
 %
 % Output: S is a matrix of 2x5046 that define the shape, i.e.
@@ -15,8 +16,8 @@ function S = GenerateShapeFromMode(M, pct, varargin)
 %             S[2,2524:end] = epicardium at ES
 % 
 % Notes:
-% - M vector can be retrieved from the outputs of GenerateOrthogonalModes.m
-%   See ortho-modes-nlatent_*.csv file.
+% - M and pcs vectors can be retrieved from the outputs of GenerateOrthogonalModes.m
+%   See ortho-modes-nlatent_*.csv and ortho-pcscores-nlatent_%.csv files.
 % - Shape vectors are defined as [x1 y1 z1 x2 y2 z2 ... xN yN zN] Cartesian
 %   coordinate values.
 %
@@ -29,6 +30,7 @@ function S = GenerateShapeFromMode(M, pct, varargin)
 
 % check the input arguments
 if( numel(M)~=10092 ), error('Invalid mode vector size.'); end
+if( numel(pcs)~=2291 ), error('Invalid principal score vector size.'); end
 if( pct<0 || pct>100 ), error('Percentile is out-of-range.'); end
 
 % default option
@@ -53,7 +55,7 @@ end
 if( numel(MS)~=10092 ), error('Invalid mean shape.'); end
 
 % generate
-S = MS(:) + (prctile(M,pct) - mean(M)) .* M(:);
+S = MS(:) + (prctile(pcs,pct) - mean(pcs)) .* M(:);
 
 % reshape
 S = reshape(S, [], 2)';
