@@ -1,3 +1,5 @@
 .DS_Store
 /tmp/*
 *~
+surface_points_ED.csv
+surface_points_ES.csv

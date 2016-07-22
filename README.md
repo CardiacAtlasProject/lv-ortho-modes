@@ -83,13 +83,13 @@ axis equal;
 
 # Generating modes
 
-Run:
+To generate orthogonal modes with nlatent=1, run:
 
 ```matlab
->> GenerateOrthogonalModes;
+>> [modes, pcs] = GenerateOrthogonalModes('./data/', 1, './modes/');
 ```
 
-The outputs are:
+If the last argument, which is the output directory, is given, then the outputs are:
 * `ortho-modes-nlatent_DD.csv`, where DD is the number of latent variables you specified. It contains six columns of modes without header, where columns are the same as `clinical_index.csv` columns.
 * `ortho-pcscores-nlatent_DD.csv`, where DD is the number of latent variables you specified. It contains the principal scores with the same number of columns as the modes.
 
@@ -102,9 +102,10 @@ For example, we want to generate clinical mode of relative wall thickness (RWT) 
 ```matlab
 % read the output orthogonal mode files
 modes = importdata('modes/ortho-modes-nlatent_1.csv');
+pcscores = importdata('modes/ortho-pcscores-nlatent_1.csv');
 
 % generate a shape based on clinical mode #4 (RWT) at 10th percentile
-S = GenerateShapeFromMode( modes(:,4), 10 );
+S = GenerateShapeFromMode( modes(:,4), pcscores(:,4), 90 );
 
 % read patches for visualization
 face = importdata('data/surface_face.csv');
@@ -125,3 +126,9 @@ axis equal;
 ```
 
 # Interactive visualization
+
+Run:
+
+```matlab
+>> OrthogonalModeViewer( './data/', 1 );
+```
