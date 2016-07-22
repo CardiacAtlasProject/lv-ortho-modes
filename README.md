@@ -1,5 +1,7 @@
 This directory contains necessary data files, Matlab and R script files used to calculate and visualize the clinical orthogonal modes from Left Ventricular (LV) models.
 
+More information: http://www.cardiacatlas.org/tools/lv-shape-orthogonal-clinical-modes/
+
 # Requirements
 
 1. Matlab (http://www.mathworks.com)
