@@ -14,6 +14,7 @@ This directory contains necessary data files, Matlab and R script files used to 
 * Delimiter: ','
 
 This file contains 5 clinical indices that we used in the paper are ordered as follows:
+
 1. EDVI = End-Diastolic Volume Index, which is End-Diastolic Volume (in ml) divided by Body Surface Area.
 * Sphericity = EDV divided by the volume of a sphere with a diameter corresponding to the major axis at ED in LV long-axis view.
 * EF = Ejection Fraction, which is (EDV - ESV) / EDV, where ESV = End-Systolic Volume.
