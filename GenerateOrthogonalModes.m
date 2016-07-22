@@ -1,18 +1,37 @@
-function GenerateOrthogonalModes
+function [modes, pc_scores] = GenerateOrthogonalModes(datadir, nlatent, outdir)
 % GENERATE THE ORTHOGONAL CLINICAL MODES
 %
 % This script generate the clinical orthogonal modes from the combined LV
 % surfaces at ED and ES based on 6 clinical indices.
 %
-% This function will run interactively to ask users for specific inputs.
+%    [modes, pc_scores] = GenerateOrthogonalModes(datadir, nlatent, outputdir);
+%
+% Input:  - datadir is a directory where it contains:
+%              'clinical_index.csv',
+%              'surface_points_ED.csv', and
+%              'surface_points_ES.csv' files.
+%         - nlatent is the number of latent variables. It ranges from 1 to 10.
+%         - outdir is a directory to store the generated modes and pc_scores 
+%           to a file.
+%           You can omit or set outputdir as an empty string to specify that there
+%           is no external outputs are created.
+%
+% Output: - modes is N x M matrix, where N is the number of total surface
+%           points and M is the number of clinical indices.
+%         - pc_scores is P x M matrix, where P is the number of shapes in
+%           the model, which is 2291.
 %
 % Author: Avan Suinesiaputra,
 % Modified from: Xingyu Zhang, Pau Medrano-Gracia & Alistair Young
 % University of Auckland - 2016
 
-% get clinical_index values, ask user for input if necessary
-clinical_index_file = ask_input_file('data','clinical_index.csv');
-if( isempty(clinical_index_file) ), return; end
+if( nargin < 3 ), outdir = ''; end
+
+% read inputs
+clinical_index_file = fullfile(datadir, 'clinical_index.csv');
+if( ~exist(clinical_index_file, 'file') )
+    error('Invalid data directory. No clinical_index.csv file is found.');
+end
 
 fprintf(1, 'Reading clinical index\n');
 CI = importdata(clinical_index_file);
@@ -24,16 +43,20 @@ if( ~isequal(index_names, {'EDVI', 'Sphericity', 'EF', 'RWT', 'Conicity', 'LS'})
     error('ERROR: Invalid clinical index file.');
 end
 
-% get surface points at ED, ask user for input if necessary
-pts_ED_file = ask_input_file('data','surface_points_ED.csv');
-if( isempty(pts_ED_file) ), return; end
+% get surface points at ED
+pts_ED_file = fullfile(datadir,'surface_points_ED.csv');
+if( ~exist(pts_ED_file, 'file') )
+    error('Invalid data directory. No surface_points_ED.csv file is found.');
+end
 
 fprintf(1, 'Reading LV surface points at ED\n');
 pts_ED = importdata(pts_ED_file);
 
-% get surface points at ES, ask user for input if necessary
-pts_ES_file = ask_input_file('data','surface_points_ES.csv');
-if( isempty(pts_ES_file) ), return; end
+% get surface points at ES
+pts_ES_file = fullfile(datadir,'surface_points_ES.csv');
+if( ~exist(pts_ES_file, 'file') )
+    error('Invalid data directory. No surface_points_ES.csv file is found.');
+end
 
 fprintf(1, 'Reading LV surface points at ES\n');
 pts_ES = importdata(pts_ES_file);
@@ -47,28 +70,14 @@ B0 = pts - repmat(mean_shape, size(pts,1),1);
 
 clear('pts_ED', 'pts_ES');    % memory conservation
 
-% ask for output directory
-outdir = pwd;
-fprintf(1, 'Output directory is %s\n', outdir);
-yn = input('Do you want to change it [y/n]? ', 's');
-if( strcmpi(yn,'y') )
-    % select output directory
-    outdir = uigetdir(outdir, 'Select output directory');
-    if( ~ischar(outdir) )
-        fprintf(2, 'User cancelled.\n');
-        return;
-    end
-end
-
-% number of latent variables
-nlatent = input('Number of latent variables (1..10) = ');
+% check number of latent variables
 if( nlatent<1 || nlatent>10 )
     error('ERROR: Number of latent variables must be between 1 and 10.');
 end
 
 % store modes, pc_scores
 modes = zeros(size(pts,2), length(index_names));
-pc_modes = zeros(size(pts,1), length(index_names));
+pc_scores = zeros(size(pts,1), length(index_names));
 
 % initial X
 X = pts;
@@ -106,15 +115,18 @@ for si=1:length(index_names)
     
 end
 
+if( ~isempty(outdir) )
+    
+    % create outputs
+    fout_mode = fullfile(outdir, sprintf('ortho-modes-nlatent_%d.csv', nlatent));
+    fprintf(1, 'Writing modes to %s\n', fout_mode);
+    dlmwrite(fout_mode, modes, ',');
 
-% create outputs
-fout_mode = fullfile(outdir, sprintf('ortho-modes-nlatent_%d.csv', nlatent));
-fprintf(1, 'Writing modes to %s\n', fout_mode);
-dlmwrite(fout_mode, modes, ',');
+    fout_pcs = fullfile(outdir, sprintf('ortho-pcscores-nlatent_%d.csv', nlatent));
+    fprintf(1, 'Writing principal scores to %s\n', fout_pcs);
+    dlmwrite(fout_pcs, pc_scores, ',');
 
-fout_pcs = fullfile(outdir, sprintf('ortho-pcscores-nlatent_%d.csv', nlatent));
-fprintf(1, 'Writing principal scores to %s\n', fout_pcs);
-dlmwrite(fout_pcs, pc_scores, ',');
+end
 
 end
 
