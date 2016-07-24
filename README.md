@@ -135,3 +135,5 @@ Run:
 ```matlab
 >> OrthogonalModeViewer( './data/', 1 );
 ```
+
+Arguments are the data directory and the number of latent variables.
