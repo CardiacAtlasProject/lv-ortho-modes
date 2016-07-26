@@ -1,5 +1,4 @@
 # Left Ventricular Orthogonal Clinical Modes
-----
 
 This directory contains necessary data files, Matlab and R script files used to calculate and visualize the clinical orthogonal modes from Left Ventricular (LV) models.
 
