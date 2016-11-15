@@ -1,15 +1,17 @@
+# Left Ventricular Orthogonal Clinical Modes
+
 This directory contains necessary data files, Matlab and R script files used to calculate and visualize the clinical orthogonal modes from Left Ventricular (LV) models.
 
 More information: http://www.cardiacatlas.org/tools/lv-shape-orthogonal-clinical-modes/
 
-# Requirements
+## Requirements
 
 1. Matlab (http://www.mathworks.com)
 1. Statistics and Machine Learning Matlab Toolbox
 
-# Data
+## Data
 
-## `clinical_index.csv`
+### `clinical_index.csv`
 
 * Size: 2291 rows, 6 columns
 * Header: TRUE
@@ -26,7 +28,7 @@ This file contains 5 clinical indices that we used in the paper are ordered as f
 
 The extra column shows labels for each row, either asymptomatic volunteers (ASYMP, n=1991) or patients with myocardial infarction (MI, n=300).
 
-## `surface_points_ED.csv`
+### `surface_points_ED.csv`
 
 * Size: 2291 rows, 5046 columns
 * Header: FALSE
@@ -40,7 +42,7 @@ where the first half is for endocardium, and the last half is for epicardium.
 
 To visualize a surface, you need `surface_face.csv` file.
 
-## `surface_points_ES.csv`
+### `surface_points_ES.csv`
 
 * Size: 2291 rows, 5046 columns
 * Header: FALSE
@@ -48,7 +50,7 @@ To visualize a surface, you need `surface_face.csv` file.
 
 Defines the surface sample points of the LV model at ES. See `surface_points_ED.csv` description above.
 
-## `surface_face.csv`
+### `surface_face.csv`
 
 * Size: 1595 rows, 3 columns
 * Header: FALSE
@@ -56,7 +58,7 @@ Defines the surface sample points of the LV model at ES. See `surface_points_ED.
 
 Contains the triangular patches for an LV surface. There are 1595 patches that contains indices of vertices. See LV surface visualization section below.
 
-## `mean_shape.csv`
+### `mean_shape.csv`
 
 * Size: 10092 rows, 1 columns
 * Header: FALSE
@@ -64,7 +66,7 @@ Contains the triangular patches for an LV surface. There are 1595 patches that c
 
 Defines the mean shape of LV shapes from both ED (first half) and ES (second half). This data is useful to generate a clinical mode (see Visualizing a clinical mode section).
 
-# Visualizing an LV model
+## Visualizing an LV model
 
 You need a surface point vector (size = 5046 elements) and surface patches (defined by `surface_face.csv` file).
 
@@ -84,7 +86,7 @@ patch('Faces', face, 'Vertices', reshape(P(2524:end), 3, [])', 'FaceColor', 'b',
 axis equal;
 ```
 
-# Generating modes
+## Generating modes
 
 To generate orthogonal modes with nlatent=1, run:
 
@@ -96,7 +98,7 @@ If the last argument, which is the output directory, is given, then the outputs 
 * `ortho-modes-nlatent_DD.csv`, where DD is the number of latent variables you specified. It contains six columns of modes without header, where columns are the same as `clinical_index.csv` columns.
 * `ortho-proj-nlatent_DD.csv`, where DD is the number of latent variables you specified. It contains the projections with the same number of columns as the modes.
 
-# Visualizing a clinical mode
+## Visualizing a clinical mode
 
 Use `GenerateShapeFromMode.m` file.
 
@@ -128,7 +130,7 @@ patch('Faces',face, 'Vertices', reshape(S(2,2524:end),3,[])', 'FaceColor', 'b', 
 axis equal;
 ```
 
-# Interactive visualization
+## Interactive visualization
 
 Run:
 
