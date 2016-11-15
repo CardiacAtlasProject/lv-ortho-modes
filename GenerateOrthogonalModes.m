@@ -1,25 +1,26 @@
-function [modes, pc_scores] = GenerateOrthogonalModes(datadir, nlatent, outdir)
+function [modes, proj] = GenerateOrthogonalModes(datadir, M, outdir)
 % GENERATE THE ORTHOGONAL CLINICAL MODES
 %
 % This script generate the clinical orthogonal modes from the combined LV
 % surfaces at ED and ES based on 6 clinical indices.
 %
-%    [modes, pc_scores] = GenerateOrthogonalModes(datadir, nlatent, outputdir);
+%    [modes, proj] = GenerateOrthogonalModes(datadir, M, outputdir);
 %
 % Input:  - datadir is a directory where it contains:
 %              'clinical_index.csv',
 %              'surface_points_ED.csv', and
 %              'surface_points_ES.csv' files.
-%         - nlatent is the number of latent variables. It ranges from 1 to 10.
+%         - M is the number of latent variables. It ranges from 1 to 10.
 %         - outdir is a directory to store the generated modes and pc_scores 
 %           to a file.
 %           You can omit or set outputdir as an empty string to specify that there
 %           is no external outputs are created.
 %
-% Output: - modes is N x M matrix, where N is the number of total surface
-%           points and M is the number of clinical indices.
-%         - pc_scores is P x M matrix, where P is the number of shapes in
-%           the model, which is 2291.
+% Output: - modes is P x K matrix modes of orthogonal shapes based on clinical
+%           indices, where P is the number of total surface points and K is 
+%           the number of clinical indices.
+%         - proj is N x P matrix projection of input data to the modes, where 
+%           P is the number of shapes in the model, which is 2291.
 %
 % Author: Avan Suinesiaputra,
 % Modified from: Xingyu Zhang, Pau Medrano-Gracia & Alistair Young
@@ -71,13 +72,13 @@ B0 = pts - repmat(mean_shape, size(pts,1),1);
 clear('pts_ED', 'pts_ES');    % memory conservation
 
 % check number of latent variables
-if( nlatent<1 || nlatent>10 )
+if( M<1 || M>10 )
     error('ERROR: Number of latent variables must be between 1 and 10.');
 end
 
 % store modes, pc_scores
 modes = zeros(size(pts,2), length(index_names));
-pc_scores = zeros(size(pts,1), length(index_names));
+proj = zeros(size(pts,1), length(index_names));
 
 % initial X
 X = pts;
@@ -89,18 +90,23 @@ for si=1:length(index_names)
     fprintf(1, 'STEP %d:\n', si);
     
     % calculate the mode
-    fprintf(1, 'PLS regression with %d latent variables for %s\n', nlatent, index_names{si});
+    fprintf(1, 'PLS regression with %d latent variables for %s\n', M, index_names{si});
     % I don't need the rest, just the coefficients
-    [~,~,~,~,BETA] = plsregress(X,CI(:,si),nlatent);
+    [~,~,~,~,BETA] = plsregress(X,CI(:,si),M);
     
     % get the coefficients, excluding the intercept (first row)
+    % Note that we call the PLS regression coefficient as modes in our
+    % proposed orthogonal shape decomposition method.
     modes(:,si) = BETA(2:end,:);
     
-    % normalize
+    % normalize modes to create orthonormal basis vectors
     modes(:,si) = modes(:,si) ./ norm(modes(:,si));
 
-    % calculate scores
-    pc_scores(:,si) = pts * modes(:,si);
+    % calculate projection of points to the modes
+    % Note that although this is similar to Y prediction, but without
+    % the intercept and Yresiduals, this is not equal.
+    % This projection is only needed to visualise back the shape.
+    proj(:,si) = pts * modes(:,si);
     
     % remove this mode and the previous mode(s) from the data
     B1 = zeros(size(B0));
@@ -118,13 +124,13 @@ end
 if( ~isempty(outdir) )
     
     % create outputs
-    fout_mode = fullfile(outdir, sprintf('ortho-modes-nlatent_%d.csv', nlatent));
+    fout_mode = fullfile(outdir, sprintf('ortho-modes-nlatent_%d.csv', M));
     fprintf(1, 'Writing modes to %s\n', fout_mode);
     dlmwrite(fout_mode, modes, ',');
 
-    fout_pcs = fullfile(outdir, sprintf('ortho-pcscores-nlatent_%d.csv', nlatent));
-    fprintf(1, 'Writing principal scores to %s\n', fout_pcs);
-    dlmwrite(fout_pcs, pc_scores, ',');
+    fout_proj = fullfile(outdir, sprintf('ortho-proj-nlatent_%d.csv', M));
+    fprintf(1, 'Writing projections to %s\n', fout_proj);
+    dlmwrite(fout_proj, proj, ',');
 
 end
 

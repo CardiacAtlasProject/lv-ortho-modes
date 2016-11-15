@@ -75,8 +75,8 @@ Note that the vector contains 2 surfaces. Hence index 1:2523 are for endocardium
 ptsED = importdata('surface_points_ED.csv');
 face = importdata('surface_face.csv');
 
-% Visualize LV shape from subject #5
-P = ptsED(5,:);
+% Visualize LV shape from subject #200
+P = ptsED(200,:);
 figure;
 patch('Faces', face, 'Vertices', reshape(P(1:2523), 3, [])', 'FaceColor', 'r', 'FaceAlpha', 0.2);
 hold on;
@@ -89,12 +89,12 @@ axis equal;
 To generate orthogonal modes with nlatent=1, run:
 
 ```matlab
->> [modes, pcs] = GenerateOrthogonalModes('./data/', 1, './modes/');
+>> [modes, proj] = GenerateOrthogonalModes('./data/', 1, './modes/');
 ```
 
 If the last argument, which is the output directory, is given, then the outputs are:
 * `ortho-modes-nlatent_DD.csv`, where DD is the number of latent variables you specified. It contains six columns of modes without header, where columns are the same as `clinical_index.csv` columns.
-* `ortho-pcscores-nlatent_DD.csv`, where DD is the number of latent variables you specified. It contains the principal scores with the same number of columns as the modes.
+* `ortho-proj-nlatent_DD.csv`, where DD is the number of latent variables you specified. It contains the projections with the same number of columns as the modes.
 
 # Visualizing a clinical mode
 
@@ -105,10 +105,10 @@ For example, we want to generate clinical mode of relative wall thickness (RWT) 
 ```matlab
 % read the output orthogonal mode files
 modes = importdata('modes/ortho-modes-nlatent_1.csv');
-pcscores = importdata('modes/ortho-pcscores-nlatent_1.csv');
+proj = importdata('modes/ortho-proj-nlatent_1.csv');
 
 % generate a shape based on clinical mode #4 (RWT) at 10th percentile
-S = GenerateShapeFromMode( modes(:,4), pcscores(:,4), 90 );
+S = GenerateShapeFromMode( modes(:,4), proj(:,4), 90 );
 
 % read patches for visualization
 face = importdata('data/surface_face.csv');
