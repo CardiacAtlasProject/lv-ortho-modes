@@ -76,7 +76,7 @@ if( M<1 || M>10 )
     error('ERROR: Number of latent variables must be between 1 and 10.');
 end
 
-% store modes, pc_scores
+% store modes, projections
 modes = zeros(size(pts,2), length(index_names));
 proj = zeros(size(pts,1), length(index_names));
 
