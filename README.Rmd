@@ -10,7 +10,6 @@ output:
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 options(digits = 2)
-library(printr)
 ```
 
 This project stores R codes to generate orthogonal basis vectors from a set of 3D Left Ventricular (LV) shapes. Each basis vector is aligned to the direction of maximum variance from a clinical measurement.
@@ -43,16 +42,12 @@ The output `ortho` is a list that contains:
 
 We can verify if the modes are orthogonal
 ```{r}
-as.data.frame(t(ortho$modes) %*% ortho$modes)
+t(ortho$modes) %*% ortho$modes
 ```
 
 ## Modes of shape variation
 
-A *mode of shape variation* is a visualization of a shape that is generated from a model by using only one mode. If there are $K$ modes, the $i$-th mode of shape variation is given by:
-$$
-x = \bar{x} + \lambda_i \mathbf{B}_i
-$$
-where $\bar{x}$ is a *mean shape*, $\mathbf{B}_i$ is the $i$-th column of the mode matrix and $\lambda_i$ is a constant. The value of $\lambda_i$ is usually computed from the distribution of $i$-th scores.
+A *mode of shape variation* is a visualization of a shape that is generated from a model by using only one mode. If there are K modes, the i-th mode of shape variation is given by: x = mean_shape + lambda_i \* B_i, where *B_i* is the i-th column of the mode matrix and *lambda_i* is a constant. The value of *lambda_i* is usually computed from the distribution of i-th scores.
 
 For example, if we want to visualize the Tukey's five number summaries (minimum, lower-hinge, median, upper-hinge, and maximum) from the Ejection Fraction (EF) mode, then
 ```{r}

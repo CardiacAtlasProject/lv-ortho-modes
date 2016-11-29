@@ -33,25 +33,22 @@ The output `ortho` is a list that contains:
 We can verify if the modes are orthogonal
 
 ```r
-as.data.frame(t(ortho$modes) %*% ortho$modes)
+t(ortho$modes) %*% ortho$modes
 ```
 
-              EDVI   Sphericity   EF   RWT   Conicity   LS
------------  -----  -----------  ---  ----  ---------  ---
-EDVI             1            0    0     0          0    0
-Sphericity       0            1    0     0          0    0
-EF               0            0    1     0          0    0
-RWT              0            0    0     1          0    0
-Conicity         0            0    0     0          1    0
-LS               0            0    0     0          0    1
+```
+##                EDVI Sphericity      EF      RWT Conicity       LS
+## EDVI        1.0e+00    1.6e-15 1.7e-14  7.8e-15 -9.0e-15 -4.4e-15
+## Sphericity  1.6e-15    1.0e+00 7.2e-15  2.1e-18 -5.5e-15 -1.1e-15
+## EF          1.7e-14    7.2e-15 1.0e+00  1.3e-14  1.0e-14  3.1e-14
+## RWT         7.8e-15    2.1e-18 1.3e-14  1.0e+00 -3.7e-15 -5.0e-15
+## Conicity   -9.0e-15   -5.5e-15 1.0e-14 -3.7e-15  1.0e+00 -2.4e-14
+## LS         -4.4e-15   -1.1e-15 3.1e-14 -5.0e-15 -2.4e-14  1.0e+00
+```
 
 ## Modes of shape variation
 
-A *mode of shape variation* is a visualization of a shape that is generated from a model by using only one mode. If there are $K$ modes, the $i$-th mode of shape variation is given by:
-$$
-x = \bar{x} + \lambda_i \mathbf{B}_i
-$$
-where $\bar{x}$ is a *mean shape*, $\mathbf{B}_i$ is the $i$-th column of the mode matrix and $\lambda_i$ is a constant. The value of $\lambda_i$ is usually computed from the distribution of $i$-th scores.
+A *mode of shape variation* is a visualization of a shape that is generated from a model by using only one mode. If there are K modes, the i-th mode of shape variation is given by: x = mean_shape + lambda_i \* B_i, where *B_i* is the i-th column of the mode matrix and *lambda_i* is a constant. The value of *lambda_i* is usually computed from the distribution of i-th scores.
 
 For example, if we want to visualize the Tukey's five number summaries (minimum, lower-hinge, median, upper-hinge, and maximum) from the Ejection Fraction (EF) mode, then
 
