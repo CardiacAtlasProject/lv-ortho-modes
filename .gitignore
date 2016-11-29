@@ -3,6 +3,12 @@
 *~
 surface_points_ED.csv
 surface_points_ES.csv
+<<<<<<< HEAD
 *README.html
 .RHistory
 .Rproj.user
+=======
+.Rproj.user
+.Rhistory
+README.html
+>>>>>>> porting-to-R

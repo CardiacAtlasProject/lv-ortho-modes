@@ -1,141 +1,93 @@
-# Left Ventricular Orthogonal Clinical Modes
 
-This directory contains necessary data files, Matlab and R script files used to calculate and visualize the clinical orthogonal modes from Left Ventricular (LV) models.
 
-More information: http://www.cardiacatlas.org/tools/lv-shape-orthogonal-clinical-modes/
 
-## Requirements
+This project stores R codes to generate orthogonal basis vectors from a set of 3D Left Ventricular (LV) shapes. Each basis vector is aligned to the direction of maximum variance from a clinical measurement.
 
-1. Matlab (http://www.mathworks.com)
-1. Statistics and Machine Learning Matlab Toolbox
+More information see: http://www.cardiacatlas.org/tools/lv-shape-orthogonal-clinical-modes/
 
-## Data
+## Generating the modes
 
-### `clinical_index.csv`
+There are two sets of LV shapes in the `data` folder. Example below shows how to generate the orthogonal clinical remodelling modes using ASYMPTOMATIC LV shapes.
 
-* Size: 2291 rows, 6 columns
-* Header: TRUE
-* Delimiter: ','
 
-This file contains 5 clinical indices that we used in the paper are ordered as follows:
+```r
+library(dplyr)
+source('generate.ortho.modes.R')
 
-1. EDVI = End-Diastolic Volume Index, which is End-Diastolic Volume (in ml) divided by Body Surface Area.
-* Sphericity = EDV divided by the volume of a sphere with a diameter corresponding to the major axis at ED in LV long-axis view.
-* EF = Ejection Fraction, which is (EDV - ESV) / EDV, where ESV = End-Systolic Volume.
-* RWT = Relative Wall Thickness = twice the posterior wall thickness divided by the ED diameter.
-* Conicity = the ratio of the apical diameter (defined as the diameter of the endocardium one third above the apex) over the basal diameter at ED.
-* LS = Longitudinal Shortening, which is the difference of the distance of the central basal point to the apical point at ED and ES over the distance at ED.
+# read the data, this will load X.ASYMP variable
+load('data/surface_points_ASYMP.RData')
 
-The extra column shows labels for each row, either asymptomatic volunteers (ASYMP, n=1991) or patients with myocardial infarction (MI, n=300).
-
-### `surface_points_ED.csv`
-
-* Size: 2291 rows, 5046 columns
-* Header: FALSE
-* Delimiter: ','
-
-This file contains surface sample points of the LV model at ED. There are 2291 rows that match with rows in `clinical_index.csv` file. Each row contains one LV model that consists of 2 surfaces: endocardial and epicardial surfaces. The coordinate points are stored as:
-
-> [x1, y1, z1, x2, y2, z2, ..., xN, yN, zN]
-
-where the first half is for endocardium, and the last half is for epicardium.
-
-To visualize a surface, you need `surface_face.csv` file.
-
-### `surface_points_ES.csv`
-
-* Size: 2291 rows, 5046 columns
-* Header: FALSE
-* Delimiter: ','
-
-Defines the surface sample points of the LV model at ES. See `surface_points_ED.csv` description above.
-
-### `surface_face.csv`
-
-* Size: 1595 rows, 3 columns
-* Header: FALSE
-* Delimiter: ','
-
-Contains the triangular patches for an LV surface. There are 1595 patches that contains indices of vertices. See LV surface visualization section below.
-
-### `mean_shape.csv`
-
-* Size: 10092 rows, 1 columns
-* Header: FALSE
-* Delimiter: ','
-
-Defines the mean shape of LV shapes from both ED (first half) and ES (second half). This data is useful to generate a clinical mode (see Visualizing a clinical mode section).
-
-## Visualizing an LV model
-
-You need a surface point vector (size = 5046 elements) and surface patches (defined by `surface_face.csv` file).
-
-Note that the vector contains 2 surfaces. Hence index 1:2523 are for endocardium and index 2524:5046 are for epicardium. The number of points are then 2523/3=841 points per surface.
-
-```matlab
-% Load points and faces
-ptsED = importdata('surface_points_ED.csv');
-face = importdata('surface_face.csv');
-
-% Visualize LV shape from subject #200
-P = ptsED(200,:);
-figure;
-patch('Faces', face, 'Vertices', reshape(P(1:2523), 3, [])', 'FaceColor', 'r', 'FaceAlpha', 0.2);
-hold on;
-patch('Faces', face, 'Vertices', reshape(P(2524:end), 3, [])', 'FaceColor', 'b', 'FaceAlpha', 0.2);
-axis equal;
+# read the clinical variables, select only ASYMP shapes
+CI = read.csv('data/clinical_index.csv', header=TRUE) %>%
+  filter(Group=="ASYMP") %>%
+  select(EDVI,Sphericity,EF,RWT,Conicity,LS)
+  
+# compute modes with number of component = 1
+ortho = generate.ortho.modes(X.ASYMP, CI, M=1)
 ```
 
-## Generating modes
+The output `ortho` is a list that contains:
+* `modes`, which are are the orthogonal basis vectors
+* `scores`, which are the projections of the data to the basis vectors
 
-To generate orthogonal modes with nlatent=1, run:
+We can verify if the modes are orthogonal
 
-```matlab
->> [modes, proj] = GenerateOrthogonalModes('./data/', 1, './modes/');
+```r
+as.data.frame(t(ortho$modes) %*% ortho$modes)
 ```
 
-If the last argument, which is the output directory, is given, then the outputs are:
-* `ortho-modes-nlatent_DD.csv`, where DD is the number of latent variables you specified. It contains six columns of modes without header, where columns are the same as `clinical_index.csv` columns.
-* `ortho-proj-nlatent_DD.csv`, where DD is the number of latent variables you specified. It contains the projections with the same number of columns as the modes.
+              EDVI   Sphericity   EF   RWT   Conicity   LS
+-----------  -----  -----------  ---  ----  ---------  ---
+EDVI             1            0    0     0          0    0
+Sphericity       0            1    0     0          0    0
+EF               0            0    1     0          0    0
+RWT              0            0    0     1          0    0
+Conicity         0            0    0     0          1    0
+LS               0            0    0     0          0    1
 
-## Visualizing a clinical mode
+## Modes of shape variation
 
-Use `GenerateShapeFromMode.m` file.
+A *mode of shape variation* is a visualization of a shape that is generated from a model by using only one mode. If there are $K$ modes, the $i$-th mode of shape variation is given by:
+$$
+x = \bar{x} + \lambda_i \mathbf{B}_i
+$$
+where $\bar{x}$ is a *mean shape*, $\mathbf{B}_i$ is the $i$-th column of the mode matrix and $\lambda_i$ is a constant. The value of $\lambda_i$ is usually computed from the distribution of $i$-th scores.
 
-For example, we want to generate clinical mode of relative wall thickness (RWT) at 10th percentile from the model distribution:
+For example, if we want to visualize the Tukey's five number summaries (minimum, lower-hinge, median, upper-hinge, and maximum) from the Ejection Fraction (EF) mode, then
 
-```matlab
-% read the output orthogonal mode files
-modes = importdata('modes/ortho-modes-nlatent_1.csv');
-proj = importdata('modes/ortho-proj-nlatent_1.csv');
+```r
+source('plot.shape.R')
 
-% generate a shape based on clinical mode #4 (RWT) at 10th percentile
-S = GenerateShapeFromMode( modes(:,4), proj(:,4), 90 );
+# compute the mean shape
+mean.shape = colMeans(X.ASYMP)
 
-% read patches for visualization
-face = importdata('data/surface_face.csv');
+# compute the lambda coefficients - use R's fivenum function
+lambdas = fivenum(ortho$scores[,"EF"]) - mean(ortho$scores[,"EF"])
 
-% visualize the ED
-figure('Name', 'RWT mode at ED pct=10');
-patch('Faces',face, 'Vertices', reshape(S(1,1:2523),3,[])', 'FaceColor', 'r', 'FaceAlpha', 0.2);
-hold on;
-patch('Faces',face, 'Vertices', reshape(S(1,2524:end),3,[])', 'FaceColor', 'b', 'FaceAlpha', 0.2);
-axis equal;
-
-% visualize the ES
-figure('Name', 'RWT mode at ES pct=10');
-patch('Faces',face, 'Vertices', reshape(S(2,1:2523),3,[])', 'FaceColor', 'r', 'FaceAlpha', 0.2);
-hold on;
-patch('Faces',face, 'Vertices', reshape(S(2,2524:end),3,[])', 'FaceColor', 'b', 'FaceAlpha', 0.2);
-axis equal;
+# generate the modes of EF shape variations
+S = matrix(1, nrow=length(lambdas), ncol=1) %*% mean.shape + 
+  matrix(lambdas, ncol=1) %*% matrix(ortho$modes[,"EF"],nrow=1)
 ```
 
-## Interactive visualization
+Plotting the modes
 
-Run:
+```r
+# get points for ED and ES surfaces
+pts.ed = 1:(length(mean.shape)/2)
+pts.es = (1+length(mean.shape)/2):length(mean.shape)
 
-```matlab
->> OrthogonalModeViewer( './data/', 1 );
+# plot it with rgl library
+library(rgl)
+
+mfrow3d(2, length(lambdas), sharedMouse = TRUE, byrow = FALSE)
+for( i in 1:length(lambdas) ) 
+{
+  plot.shape(S[i, pts.ed], new.plot = FALSE)
+  next3d()
+  plot.shape(S[i, pts.es], new.plot = FALSE)
+  if( i < length(lambdas) ) { next3d() }
+}
+rglwidget()
 ```
 
-Arguments are the data directory and the number of latent variables.
+![Tukey's summary for Ejection Fraction modes](fivenum-EF-ASYMP-mode.png)
