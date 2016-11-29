@@ -81,6 +81,10 @@ generate.ortho.modes = function(X, Y,
   }
   
   # producing output
+  if( !is.null(colnames(Y)) ) {
+    colnames(BETA) = colnames(Y)
+    colnames(SCORE) = colnames(Y)
+  }
   list(
     modes = BETA,
     scores = SCORE
