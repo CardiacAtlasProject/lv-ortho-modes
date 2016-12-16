@@ -1,4 +1,4 @@
-function [modes, proj] = GenerateOrthogonalModes(datadir, M, outdir)
+function [remodelling_components, remodelling_scores] = GenerateOrthogonalModes(datadir, M, outdir)
 % GENERATE THE ORTHOGONAL CLINICAL MODES
 %
 % This script generate the clinical orthogonal modes from the combined LV
@@ -16,10 +16,10 @@ function [modes, proj] = GenerateOrthogonalModes(datadir, M, outdir)
 %           You can omit or set outputdir as an empty string to specify that there
 %           is no external outputs are created.
 %
-% Output: - modes is P x K matrix modes of orthogonal shapes based on clinical
+% Output: - remodelling_components is P x K matrix of orthogonal remodelling components based on clinical
 %           indices, where P is the number of total surface points and K is 
 %           the number of clinical indices.
-%         - proj is N x P matrix projection of input data to the modes, where 
+%         - remodelling_scores is N x P matrix projection of input data to the components, where 
 %           P is the number of shapes in the model, which is 2291.
 %
 % Author: Avan Suinesiaputra,
@@ -76,9 +76,9 @@ if( M<1 || M>10 )
     error('ERROR: Number of latent variables must be between 1 and 10.');
 end
 
-% store modes, projections
-modes = zeros(size(pts,2), length(index_names));
-proj = zeros(size(pts,1), length(index_names));
+% store remodelling_components & remodelling_scores
+remodelling_components = zeros(size(pts,2), length(index_names));
+remodelling_scores = zeros(size(pts,1), length(index_names));
 
 % initial X
 X = pts;
@@ -95,23 +95,18 @@ for si=1:length(index_names)
     [~,~,~,~,BETA] = plsregress(X,CI(:,si),M);
     
     % get the coefficients, excluding the intercept (first row)
-    % Note that we call the PLS regression coefficient as modes in our
-    % proposed orthogonal shape decomposition method.
-    modes(:,si) = BETA(2:end,:);
+    remodelling_components(:,si) = BETA(2:end,:);
     
-    % normalize modes to create orthonormal basis vectors
-    modes(:,si) = modes(:,si) ./ norm(modes(:,si));
+    % normalize the remodelling components to create orthonormal basis vectors
+    remodelling_components(:,si) = remodelling_components(:,si) ./ norm(remodelling_components(:,si));
 
-    % calculate projection of points to the modes
-    % Note that although this is similar to Y prediction, but without
-    % the intercept and Yresiduals, this is not equal.
-    % This projection is only needed to visualise back the shape.
-    proj(:,si) = pts * modes(:,si);
+    % calculate scores of points to the modes
+    remodelling_scores(:,si) = pts * remodelling_components(:,si);
     
     % remove this mode and the previous mode(s) from the data
     B1 = zeros(size(B0));
     for i=1:si
-        B1 = B1 + ( (B0 * modes(:,i)) * modes(:,i)' );
+        B1 = B1 + ( (B0 * remodelling_components(:,i)) * remodelling_components(:,i)' );
     end
     
     % now X is B0 - B1
@@ -124,13 +119,13 @@ end
 if( ~isempty(outdir) )
     
     % create outputs
-    fout_mode = fullfile(outdir, sprintf('ortho-modes-nlatent_%d.csv', M));
-    fprintf(1, 'Writing modes to %s\n', fout_mode);
-    dlmwrite(fout_mode, modes, ',');
+    fout_components = fullfile(outdir, sprintf('ortho-components-nlatent_%d.csv', M));
+    fprintf(1, 'Writing modes to %s\n', fout_components);
+    dlmwrite(fout_components, remodelling_components, ',');
 
-    fout_proj = fullfile(outdir, sprintf('ortho-proj-nlatent_%d.csv', M));
-    fprintf(1, 'Writing projections to %s\n', fout_proj);
-    dlmwrite(fout_proj, proj, ',');
+    fout_scores = fullfile(outdir, sprintf('ortho-scores-nlatent_%d.csv', M));
+    fprintf(1, 'Writing projections to %s\n', fout_scores);
+    dlmwrite(fout_scores, remodelling_scores, ',');
 
 end
 

@@ -1,6 +1,6 @@
 # Left Ventricular Orthogonal Clinical Modes
 
-This directory contains necessary data files, Matlab and R script files used to calculate and visualize the clinical orthogonal modes from Left Ventricular (LV) models.
+This directory contains necessary data files, Matlab and R script files used to calculate and visualize the clinical remodelling components from Left Ventricular (LV) models.
 
 More information: http://www.cardiacatlas.org/tools/lv-shape-orthogonal-clinical-modes/
 
@@ -86,31 +86,31 @@ patch('Faces', face, 'Vertices', reshape(P(2524:end), 3, [])', 'FaceColor', 'b',
 axis equal;
 ```
 
-## Generating modes
+## Generating remodelling components
 
-To generate orthogonal modes with nlatent=1, run:
+To generate remodelling components with nlatent=1, run:
 
 ```matlab
->> [modes, proj] = GenerateOrthogonalModes('./data/', 1, './modes/');
+>> [comps, scores] = GenerateOrthogonalModes('./data/', 1, './output/');
 ```
 
 If the last argument, which is the output directory, is given, then the outputs are:
-* `ortho-modes-nlatent_DD.csv`, where DD is the number of latent variables you specified. It contains six columns of modes without header, where columns are the same as `clinical_index.csv` columns.
-* `ortho-proj-nlatent_DD.csv`, where DD is the number of latent variables you specified. It contains the projections with the same number of columns as the modes.
+* `ortho-components-nlatent_DD.csv`, where DD is the number of latent variables you specified. It contains six columns of components without header, where columns are the same as `clinical_index.csv` columns.
+* `ortho-scores-nlatent_DD.csv`, where DD is the number of latent variables you specified. It contains the projections with the same number of columns as the components.
 
-## Visualizing a clinical mode
+## Visualizing a remodelling component
 
 Use `GenerateShapeFromMode.m` file.
 
-For example, we want to generate clinical mode of relative wall thickness (RWT) at 10th percentile from the model distribution:
+For example, we want to generate a remodelling component of relative wall thickness (RWT) at 10th percentile from the model distribution:
 
 ```matlab
 % read the output orthogonal mode files
-modes = importdata('modes/ortho-modes-nlatent_1.csv');
-proj = importdata('modes/ortho-proj-nlatent_1.csv');
+components = importdata('output/ortho-components-nlatent_1.csv');
+scores = importdata('output/ortho-scores-nlatent_1.csv');
 
 % generate a shape based on clinical mode #4 (RWT) at 10th percentile
-S = GenerateShapeFromMode( modes(:,4), proj(:,4), 90 );
+S = GenerateShape( components(:,4), scores(:,4), 90 );
 
 % read patches for visualization
 face = importdata('data/surface_face.csv');
