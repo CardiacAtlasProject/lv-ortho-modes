@@ -14,7 +14,7 @@ generate.ortho.modes = function(X, Y,
   #   - Y is N-by-K response variables
   #   - M is number of components to use in the PLS regression
   #
-  # Output: Z is a list that contains modes and scores.
+  # Output: Z is a list that contains remodelling_components and remodelling_scores.
   #
   # Optional arguments:
   #   - method is the PLS regression method. See pls::plsr command.
@@ -55,7 +55,8 @@ generate.ortho.modes = function(X, Y,
     PLS = plsr(Y[,i] ~ Xi, M, method=method)
     
     # get the beta vector, exclude the intercept
-    BETA[,i] = coef(PLS)
+    Z = coef(PLS, ncomp=M, intercept=TRUE)
+    BETA[,i] = Z[2:dim(Z)[1],1,1]
     
     # normalise BETA
     BETA[,i] = BETA[,i] / norm(BETA[,i], type="2")
@@ -86,8 +87,8 @@ generate.ortho.modes = function(X, Y,
     colnames(SCORE) = colnames(Y)
   }
   list(
-    modes = BETA,
-    scores = SCORE
+    remodelling_components = BETA,
+    remodelling_scores = SCORE
   )
   
 }

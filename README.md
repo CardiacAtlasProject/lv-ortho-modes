@@ -7,7 +7,7 @@ More information see: http://www.cardiacatlas.org/tools/lv-shape-orthogonal-clin
 
 ## Generating the modes
 
-There are two sets of LV shapes in the `data` folder. Example below shows how to generate the orthogonal clinical remodelling modes using ASYMPTOMATIC LV shapes.
+There are two sets of LV shapes in the `data` folder. Example below shows how to generate the orthogonal clinical remodelling components using ASYMPTOMATIC LV shapes.
 
 
 ```r
@@ -27,13 +27,13 @@ ortho = generate.ortho.modes(X.ASYMP, CI, M=1)
 ```
 
 The output `ortho` is a list that contains:
-* `modes`, which are are the orthogonal basis vectors
-* `scores`, which are the projections of the data to the basis vectors
+* `remodelling_components`, which are are the orthogonal unit vectors
+* `remodelling_scores`, which are the projections of the data to the basis vectors
 
-We can verify if the modes are orthogonal
+We can verify if the components are orthogonal
 
 ```r
-t(ortho$modes) %*% ortho$modes
+t(ortho$remodelling_components) %*% ortho$remodelling_components
 ```
 
 ```
@@ -46,9 +46,9 @@ t(ortho$modes) %*% ortho$modes
 ## LS         -4.4e-15   -1.1e-15 3.1e-14 -5.0e-15 -2.4e-14  1.0e+00
 ```
 
-## Modes of shape variation
+## Remodelling components of shape variation
 
-A *mode of shape variation* is a visualization of a shape that is generated from a model by using only one mode. If there are K modes, the i-th mode of shape variation is given by: x = mean_shape + lambda_i \* B_i, where *B_i* is the i-th column of the mode matrix and *lambda_i* is a constant. The value of *lambda_i* is usually computed from the distribution of i-th scores.
+A *remodellign component of shape variation* is a visualization of a shape that is generated from a model by using only one component. If there are K components, the i-th mode of shape variation is given by: x = mean_shape + lambda_i \* B_i, where *B_i* is the i-th column of the component matrix and *lambda_i* is a constant. The value of *lambda_i* is usually computed from the distribution of i-th scores.
 
 For example, if we want to visualize the Tukey's five number summaries (minimum, lower-hinge, median, upper-hinge, and maximum) from the Ejection Fraction (EF) mode, then
 
@@ -59,14 +59,14 @@ source('plot.shape.R')
 mean.shape = colMeans(X.ASYMP)
 
 # compute the lambda coefficients - use R's fivenum function
-lambdas = fivenum(ortho$scores[,"EF"]) - mean(ortho$scores[,"EF"])
+lambdas = fivenum(ortho$remodelling_scores[,"EF"]) - mean(ortho$remodelling_scores[,"EF"])
 
-# generate the modes of EF shape variations
+# generate the remodelling_modes of EF shape variations
 S = matrix(1, nrow=length(lambdas), ncol=1) %*% mean.shape + 
-  matrix(lambdas, ncol=1) %*% matrix(ortho$modes[,"EF"],nrow=1)
+  matrix(lambdas, ncol=1) %*% matrix(ortho$remodelling_components[,"EF"],nrow=1)
 ```
 
-Plotting the modes
+Plotting the remodelling modes
 
 ```r
 # get points for ED and ES surfaces
