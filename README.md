@@ -3,7 +3,7 @@
 
 This project stores R codes to generate orthogonal basis vectors from a set of 3D Left Ventricular (LV) shapes. Each basis vector is aligned to the direction of maximum variance from a clinical measurement.
 
-More information see: http://www.cardiacatlas.org/tools/lv-shape-orthogonal-clinical-modes/
+More information see: https://www.cardiacatlas.org/left-ventricle-clinical-modes/
 
 ## Generating the modes
 
