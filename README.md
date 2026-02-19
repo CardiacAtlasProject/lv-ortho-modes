@@ -2,7 +2,7 @@
 
 This directory contains necessary data files, Matlab and R script files used to calculate and visualize the clinical remodelling components from Left Ventricular (LV) models.
 
-More information: http://www.cardiacatlas.org/tools/lv-shape-orthogonal-clinical-modes/
+More information: https://www.cardiacatlas.org/left-ventricle-clinical-modes/
 
 ## Requirements
 
